@@ -136,6 +136,48 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="mods:subject[@authority='ccsg' and mods:topic='0']" mode="slurping_MODS"/>
+  <xsl:template match="mods:subject[@authority='ccsg']/mods:topic" mode="slurping_MODS"/>
+  <xsl:template match="mods:note[starts-with(@type, 'exclude ')][normalize-space(.) = '1']" mode="slurping_MODS">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+
+    <xsl:variable name="program" select="substring-after(@type, 'exclude ')"/>
+    <xsl:variable name="type" select="@type"/>
+    <xsl:variable name="reason" select="normalize-space(../mods:note[@type = concat($type, ' reason')])"/>
+
+    <xsl:if test="../mods:subject[@authority='ccsg'][normalize-space(mods:topic) = '1']/mods:titleInfo[@type='abbreviated']/mods:title[normalize-space(.) = substring-after($type, 'exclude ')]">
+      <field>
+        <xsl:attribute name="name">
+          <xsl:value-of select="$prefix"/>
+          <xsl:text>ccsg_exclude_</xsl:text>
+          <xsl:value-of select="$suffix"/>
+        </xsl:attribute>
+        <xsl:value-of select="$program"/>
+      </field>
+      <xsl:if test="$reason">
+        <field>
+          <xsl:attribute name="name">
+            <xsl:value-of select="$prefix"/>
+            <xsl:text>ccsg_exclude_reason</xsl:text>
+            <xsl:value-of select="$suffix"/>
+          </xsl:attribute>
+          <xsl:value-of select="$reason"/>
+        </field>
+        <field>
+          <xsl:attribute name="name">
+            <xsl:value-of select="$prefix"/>
+            <xsl:text>ccsg_exclude_reason_</xsl:text>
+            <xsl:value-of select="$program"/>
+            <xsl:text>_</xsl:text>
+            <xsl:value-of select="$suffix"/>
+          </xsl:attribute>
+          <xsl:value-of select="$reason"/>
+        </field>
+      </xsl:if>
+    </xsl:if>
+  </xsl:template>
+
   <!-- Intercept names with role terms, so we can create copies of the fields
     including the role term in the name of generated fields. (Hurray, additional
     specificity!) -->
