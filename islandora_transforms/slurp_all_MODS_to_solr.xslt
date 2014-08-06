@@ -144,8 +144,8 @@
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz_'" />
     <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ '" />
 
+    <!-- Recurse as normal, so we are sure to get the regular fields. -->
     <xsl:variable name="this_prefix" select="concat($prefix, local-name(), '_')"/>
-
     <xsl:call-template name="general_mods_field">
       <xsl:with-param name="prefix" select="$this_prefix"/>
       <xsl:with-param name="suffix" select="$suffix"/>
@@ -155,7 +155,7 @@
     </xsl:call-template>
 
     <!-- Need to be able to use some fields differently, depending on what the
-      MODS is describing... -->
+      MODS is describing. -->
     <xsl:variable name="genre" select="normalize-space(mods:genre)"/>
     <xsl:choose>
       <xsl:when test="$genre='book' or $genre='book chapter'">
