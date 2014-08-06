@@ -136,6 +136,48 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="mods:mods" mode="slurping_MODS">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="pid">not provided</xsl:param>
+    <xsl:param name="datastream">not provided</xsl:param>
+    <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz_'" />
+    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ '" />
+
+    <xsl:variable name="this_prefix" select="concat($prefix, local-name(), '_')"/>
+
+    <xsl:call-template name="general_mods_field">
+      <xsl:with-param name="prefix" select="$this_prefix"/>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="value" select="normalize-space(text())"/>
+      <xsl:with-param name="pid" select="$pid"/>
+      <xsl:with-param name="datastream" select="$datastream"/>
+    </xsl:call-template>
+
+    <!-- Need to be able to use some fields differently, depending on what the
+      MODS is describing... -->
+    <xsl:variable name="genre" select="normalize-space(mods:genre)"/>
+    <xsl:choose>
+      <xsl:when test="$genre='book' or $genre='book chapter'">
+        <xsl:call-template name="general_mods_field">
+          <xsl:with-param name="prefix" select="concat($this_prefix, 'book_')"/>
+          <xsl:with-param name="suffix" select="$suffix"/>
+          <xsl:with-param name="value" select="normalize-space(text())"/>
+          <xsl:with-param name="pid" select="$pid"/>
+          <xsl:with-param name="datastream" select="$datastream"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="$genre='journal article'">
+        <xsl:call-template name="general_mods_field">
+          <xsl:with-param name="prefix" select="concat($this_prefix, 'journal_article_')"/>
+          <xsl:with-param name="suffix" select="$suffix"/>
+          <xsl:with-param name="value" select="normalize-space(text())"/>
+          <xsl:with-param name="pid" select="$pid"/>
+          <xsl:with-param name="datastream" select="$datastream"/>
+        </xsl:call-template>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
   <xsl:template match="mods:subject[@authority='ccsg' and mods:topic='0']" mode="slurping_MODS"/>
   <xsl:template match="mods:subject[@authority='ccsg']/mods:topic" mode="slurping_MODS"/>
   <xsl:template match="mods:note[starts-with(@type, 'exclude ')][normalize-space(.) = '1']" mode="slurping_MODS">
