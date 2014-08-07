@@ -294,7 +294,18 @@
     <xsl:if test="$value">
       <field>
         <xsl:attribute name="name">
-          <xsl:value-of select="concat($prefix, $suffix)"/>
+          <xsl:choose>
+            <!-- Try to create a single-valued version of each field (if one
+              does not already exist, that is). -->
+            <!-- XXX: We make some assumptions about the schema here...
+              Primarily, _s getting copied to the same places as _ms. -->
+            <xsl:when test="$suffix='ms' and java:add($single_valued_hashset, string($prefix))">
+              <xsl:value-of select="concat($prefix, 's')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($prefix, $suffix)"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:attribute>
         <xsl:value-of select="$value"/>
       </field>
