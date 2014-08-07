@@ -180,6 +180,74 @@
   </xsl:template>
   <xsl:template match="mods:subject[@authority='ccsg' and mods:topic='0']" mode="slurping_MODS"/>
   <xsl:template match="mods:subject[@authority='ccsg']/mods:topic" mode="slurping_MODS"/>
+  <xsl:template match="mods:subject[@authority='ccsg' and mods:topic='1']" mode="slurping_MODS">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="pid">not provided</xsl:param>
+    <xsl:param name="datastream">not provided</xsl:param>
+    <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz_'" />
+    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ '" />
+
+    <!-- Produce a "masked" copy of the field, which only contains those values
+      which have not been "excluded". -->
+    <xsl:variable name="type" select="normalize-space(mods:titleInfo[@type='abbreviated']/mods:title)"/>
+    <xsl:if test="normalize-space(../mods:note[@type=concat('exclude ', $type)]) = '0'">
+      <xsl:variable name="this_prefix">
+        <xsl:value-of select="concat($prefix, local-name(), '_')"/>
+        <xsl:if test="@type">
+          <xsl:value-of select="concat(@type, '_')"/>
+        </xsl:if>
+        <xsl:text>masked_</xsl:text>
+      </xsl:variable>
+
+      <xsl:call-template name="general_mods_field">
+        <xsl:with-param name="prefix" select="$this_prefix"/>
+        <xsl:with-param name="suffix" select="$suffix"/>
+        <xsl:with-param name="value" select="normalize-space(text())"/>
+        <xsl:with-param name="pid" select="$pid"/>
+        <xsl:with-param name="datastream" select="$datastream"/>
+      </xsl:call-template>
+
+      <!-- Fields are duplicated for authority because searches across authorities are common. -->
+      <xsl:if test="@authority">
+        <xsl:call-template name="general_mods_field">
+          <xsl:with-param name="prefix" select="concat($this_prefix, 'authority_', translate(@authority, $uppercase, $lowercase), '_')"/>
+          <xsl:with-param name="suffix" select="$suffix"/>
+          <xsl:with-param name="value" select="normalize-space(text())"/>
+          <xsl:with-param name="pid" select="$pid"/>
+          <xsl:with-param name="datastream" select="$datastream"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:if>
+
+    <!-- Proceed with normal processing. -->
+    <xsl:variable name="this_prefix">
+      <xsl:value-of select="concat($prefix, local-name(), '_')"/>
+      <xsl:if test="@type">
+        <xsl:value-of select="concat(@type, '_')"/>
+      </xsl:if>
+    </xsl:variable>
+
+    <xsl:call-template name="general_mods_field">
+      <xsl:with-param name="prefix" select="$this_prefix"/>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="value" select="normalize-space(text())"/>
+      <xsl:with-param name="pid" select="$pid"/>
+      <xsl:with-param name="datastream" select="$datastream"/>
+    </xsl:call-template>
+
+    <!-- Fields are duplicated for authority because searches across authorities are common. -->
+    <xsl:if test="@authority">
+      <xsl:call-template name="general_mods_field">
+        <xsl:with-param name="prefix" select="concat($this_prefix, 'authority_', translate(@authority, $uppercase, $lowercase), '_')"/>
+        <xsl:with-param name="suffix" select="$suffix"/>
+        <xsl:with-param name="value" select="normalize-space(text())"/>
+        <xsl:with-param name="pid" select="$pid"/>
+        <xsl:with-param name="datastream" select="$datastream"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="mods:note[starts-with(@type, 'exclude ')][normalize-space(.) = '1']" mode="slurping_MODS">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
