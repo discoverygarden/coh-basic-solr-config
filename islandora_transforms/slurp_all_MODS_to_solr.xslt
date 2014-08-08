@@ -125,13 +125,76 @@
     </xsl:call-template>
   </xsl:template>
 
+  <!-- Aggregate values in subjects into a single value. -->
+  <xsl:template match="*[ancestor::mods:subject]" mode="slurping_MODS">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="pid">not provided</xsl:param>
+    <xsl:param name="datastream">not provided</xsl:param>
+
+    <xsl:variable name="aggregating_part">coh_aggregated_</xsl:variable>
+    <!-- We are aggregating if the prefix ends a certain way... -->
+    <xsl:variable name="aggregating" select="$aggregating_part = substring($prefix, string-length($prefix) - string-length($aggregating_part) + 1)"/>
+
+    <!-- Continue to process normally (if not in the process of aggregating).-->
+    <xsl:call-template name="mods_authority_fork">
+      <xsl:with-param name="prefix">
+        <xsl:value-of select="$prefix"/>
+        <xsl:if test="not($aggregating)">
+          <xsl:value-of select="local-name()"/>
+          <xsl:text>_</xsl:text>
+          <xsl:if test="@type">
+            <xsl:value-of select="concat(@type, '_')"/>
+          </xsl:if>
+        </xsl:if>
+      </xsl:with-param>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="value" select="normalize-space(text())"/>
+      <xsl:with-param name="pid" select="$pid"/>
+      <xsl:with-param name="datastream" select="$datastream"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <!-- Aggregate values in subjects into a single value. -->
+  <xsl:template match="mods:subject/mods:*" mode="slurping_MODS">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="pid">not provided</xsl:param>
+    <xsl:param name="datastream">not provided</xsl:param>
+
+    <xsl:call-template name="mods_authority_fork">
+      <xsl:with-param name="prefix">
+        <xsl:value-of select="$prefix"/>
+        <xsl:text>coh_aggregated_</xsl:text>
+      </xsl:with-param>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="value" select="normalize-space(text())"/>
+      <xsl:with-param name="pid" select="$pid"/>
+      <xsl:with-param name="datastream" select="$datastream"/>
+    </xsl:call-template>
+
+    <!-- Continue processing normally. -->
+    <xsl:variable name="this_prefix">
+      <xsl:value-of select="concat($prefix, local-name(), '_')"/>
+      <xsl:if test="@type">
+        <xsl:value-of select="concat(@type, '_')"/>
+      </xsl:if>
+    </xsl:variable>
+
+    <xsl:call-template name="mods_authority_fork">
+      <xsl:with-param name="prefix" select="$this_prefix"/>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="value" select="normalize-space(text())"/>
+      <xsl:with-param name="pid" select="$pid"/>
+      <xsl:with-param name="datastream" select="$datastream"/>
+    </xsl:call-template>
+  </xsl:template>
+
   <xsl:template match="mods:mods" mode="slurping_MODS">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="pid">not provided</xsl:param>
     <xsl:param name="datastream">not provided</xsl:param>
-    <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz_'" />
-    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ '" />
 
     <!-- Recurse as normal, so we are sure to get the regular fields. -->
     <xsl:variable name="this_prefix" select="concat($prefix, local-name(), '_')"/>
