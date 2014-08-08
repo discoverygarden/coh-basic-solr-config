@@ -324,6 +324,14 @@
             <xsl:with-param name="value" select="$given"/>
           </xsl:call-template>
         </xsl:when>
+        <xsl:otherwise>
+          <xsl:for-each select="$node/mods:namePart[normalize-space(.)]">
+            <xsl:if test="position() > 1">
+              <xsl:text> </xsl:text>
+            </xsl:if>
+            <xsl:value-of select="normalize-space(.)"/>
+          </xsl:for-each>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:if test="normalize-space($complete_name)">
