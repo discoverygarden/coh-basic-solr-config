@@ -272,13 +272,14 @@
         <xsl:value-of select="concat(@type, '_')"/>
       </xsl:if>
     </xsl:variable>
+    <xsl:variable name="text_value" select="normalize-space(text())"/>
     <xsl:for-each select="mods:role/mods:roleTerm">
       <xsl:variable name="this_prefix" select="concat($base_prefix, translate(., $uppercase, $lowercase), '_')"/>
 
       <xsl:call-template name="mods_authority_fork">
         <xsl:with-param name="prefix" select="$this_prefix"/>
         <xsl:with-param name="suffix" select="$suffix"/>
-        <xsl:with-param name="value" select="normalize-space(text())"/>
+        <xsl:with-param name="value" select="$text_value"/>
         <xsl:with-param name="pid" select="$pid"/>
         <xsl:with-param name="datastream" select="$datastream"/>
         <xsl:with-param name="node" select="../.."/>
@@ -288,7 +289,7 @@
     <xsl:call-template name="mods_authority_fork">
       <xsl:with-param name="prefix" select="$base_prefix"/>
       <xsl:with-param name="suffix" select="$suffix"/>
-      <xsl:with-param name="value" select="normalize-space(text())"/>
+      <xsl:with-param name="value" select="$text_value"/>
       <xsl:with-param name="pid" select="$pid"/>
       <xsl:with-param name="datastream" select="$datastream"/>
     </xsl:call-template>
