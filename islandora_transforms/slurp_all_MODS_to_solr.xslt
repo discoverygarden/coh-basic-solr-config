@@ -273,10 +273,10 @@
       </xsl:if>
     </xsl:variable>
     <xsl:variable name="text_value" select="normalize-space(text())"/>
-    <xsl:for-each select="mods:role/mods:roleTerm">
+    <xsl:for-each select="mods:role/mods:roleTerm[normalize-space(.)]">
       <xsl:variable name="this_prefix" select="concat($base_prefix, translate(., $uppercase, $lowercase), '_')"/>
 
-      <xsl:call-template name="mods_authority_fork">
+      <xsl:call-template name="mods_name_value_fork">
         <xsl:with-param name="prefix" select="$this_prefix"/>
         <xsl:with-param name="suffix" select="$suffix"/>
         <xsl:with-param name="value" select="$text_value"/>
@@ -286,13 +286,73 @@
       </xsl:call-template>
     </xsl:for-each>
 
-    <xsl:call-template name="mods_authority_fork">
+    <xsl:call-template name="mods_name_value_fork">
       <xsl:with-param name="prefix" select="$base_prefix"/>
       <xsl:with-param name="suffix" select="$suffix"/>
       <xsl:with-param name="value" select="$text_value"/>
       <xsl:with-param name="pid" select="$pid"/>
       <xsl:with-param name="datastream" select="$datastream"/>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="mods_name_value_fork">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="value"/>
+    <xsl:param name="pid">not provided</xsl:param>
+    <xsl:param name="datastream">not provided</xsl:param>
+    <xsl:param name="node" select="current()"/>
+
+    <!-- Generate field with complete name... Will end up creating other fields
+      we won't really care about, but anyway. -->
+    <xsl:variable name="family" select="normalize-space(mods:namePart[@type='family'][1])"/>
+    <xsl:variable name="given" select="normalize-space(mods:namePart[@type='given'][1])"/>
+    <xsl:variable name="complete_name">
+      <xsl:choose>
+        <xsl:when test="$family and $given">
+          <xsl:value-of select="$family"/>
+          <xsl:text>, </xsl:text>
+          <xsl:call-template name="mods_given_name_rendering">
+            <xsl:with-param name="value" select="$given"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="$family">
+          <xsl:value-of select="$family"/>
+        </xsl:when>
+        <xsl:when test="$given">
+          <xsl:call-template name="mods_given_name_rendering">
+            <xsl:with-param name="value" select="$given"/>
+          </xsl:call-template>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:if test="normalize-space($complete_name)">
+      <xsl:call-template name="mods_authority_fork">
+        <xsl:with-param name="prefix" select="concat($prefix, 'coh_complete_name_')"/>
+        <xsl:with-param name="suffix" select="$suffix"/>
+        <xsl:with-param name="value" select="normalize-space($complete_name)"/>
+        <xsl:with-param name="pid" select="$pid"/>
+        <xsl:with-param name="datastream" select="$datastream"/>
+      </xsl:call-template>
+    </xsl:if>
+
+    <!-- Proceed with normal processing. -->
+    <xsl:call-template name="mods_authority_fork">
+      <xsl:with-param name="prefix" select="$prefix"/>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="value" select="$value"/>
+      <xsl:with-param name="pid" select="$pid"/>
+      <xsl:with-param name="datastream" select="$datastream"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="mods_given_name_rendering">
+    <xsl:param name="value"/>
+
+    <xsl:value-of select="$value"/> 
+    <xsl:if test="string-length($value) = 1">
+      <xsl:text>.</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <!-- Fields are duplicated for authority because searches across authorities are common. -->
