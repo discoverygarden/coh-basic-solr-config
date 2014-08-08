@@ -272,7 +272,7 @@
         <xsl:value-of select="concat(@type, '_')"/>
       </xsl:if>
     </xsl:variable>
-    <xsl:variable name="text_value" select="normalize-space(text())"/>
+    <xsl:variable name="text_value" select="normalize-space(.)"/>
     <xsl:for-each select="mods:role/mods:roleTerm[normalize-space(.)]">
       <xsl:variable name="this_prefix" select="concat($base_prefix, translate(., $uppercase, $lowercase), '_')"/>
 
@@ -305,8 +305,8 @@
 
     <!-- Generate field with complete name... Will end up creating other fields
       we won't really care about, but anyway. -->
-    <xsl:variable name="family" select="normalize-space(mods:namePart[@type='family'][1])"/>
-    <xsl:variable name="given" select="normalize-space(mods:namePart[@type='given'][1])"/>
+    <xsl:variable name="family" select="normalize-space($node/mods:namePart[@type='family'][1])"/>
+    <xsl:variable name="given" select="normalize-space($node/mods:namePart[@type='given'][1])"/>
     <xsl:variable name="complete_name">
       <xsl:choose>
         <xsl:when test="$family and $given">
@@ -343,13 +343,17 @@
       <xsl:with-param name="value" select="$value"/>
       <xsl:with-param name="pid" select="$pid"/>
       <xsl:with-param name="datastream" select="$datastream"/>
+      <xsl:with-param name="node" select="$node"/>
     </xsl:call-template>
   </xsl:template>
 
+  <!-- Render a given name of one character followed by a period, to represent
+    initials.
+  -->
   <xsl:template name="mods_given_name_rendering">
     <xsl:param name="value"/>
 
-    <xsl:value-of select="$value"/> 
+    <xsl:value-of select="$value"/>
     <xsl:if test="string-length($value) = 1">
       <xsl:text>.</xsl:text>
     </xsl:if>
