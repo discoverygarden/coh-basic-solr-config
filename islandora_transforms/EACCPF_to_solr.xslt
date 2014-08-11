@@ -5,7 +5,8 @@
   xmlns:eaccpf="urn:isbn:1-931666-33-4"
   xmlns:foxml="info:fedora/fedora-system:def/foxml#"
   xmlns:java="http://xml.apache.org/xalan/java"
-  xmlns:xlink="http://www.w3.org/1999/xlink">
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+    exclude-result-prefixes="java">
 
   <!-- HashSet to track single-valued fields. -->
   <xsl:variable name="eaccpf_single_valued_hashset" select="java:java.util.HashSet.new()"/>
@@ -111,6 +112,23 @@
 	  <xsl:with-param name="prefix" select="concat($prefix, local-name(), '_')"/>
 	  <xsl:with-param name="suffix" select="$suffix"/>
 	</xsl:apply-templates>
+
+    <xsl:variable name="variant_prefix">eaccpf_name_all_variant_parts_</xsl:variable>
+    <field>
+      <xsl:attribute name="name">
+        <xsl:value-of select="$variant_prefix"/>
+        <xsl:choose>
+          <xsl:when test="java:add($eaccpf_single_valued_hashset, concat($variant_prefix, 's'))">s</xsl:when>
+          <xsl:otherwise>ms</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:for-each select=".//eaccpf:nameEntry[@localType='variant']/eaccpf:part">
+        <xsl:if test="position() > 1">
+          <xsl:text> </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="normalize-space(.)"/>
+      </xsl:for-each>
+    </field>
   </xsl:template>
 
   <xsl:template match="eaccpf:fromDate | eaccpf:toDate | eaccpf:eventDateTime" mode="slurp_EACCPF">
