@@ -299,7 +299,7 @@
         <field>
           <xsl:attribute name="name">
             <xsl:value-of select="$prefix"/>
-            <xsl:text>ccsg_exclude_reason</xsl:text>
+            <xsl:text>ccsg_exclude_reason_</xsl:text>
             <xsl:value-of select="$suffix"/>
           </xsl:attribute>
           <xsl:value-of select="$reason"/>
