@@ -437,6 +437,7 @@
     <xsl:param name="value"/>
     <xsl:param name="pid">not provided</xsl:param>
     <xsl:param name="datastream">not provided</xsl:param>
+    <xsl:param name="node" select="current()"/>
     <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz_'" />
     <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ '" />
 
@@ -446,6 +447,7 @@
       <xsl:with-param name="value" select="$value"/>
       <xsl:with-param name="pid" select="$pid"/>
       <xsl:with-param name="datastream" select="$datastream"/>
+      <xsl:with-param name="node" select="$node"/>
     </xsl:call-template>
 
     <!-- Fields are duplicated for authority because searches across authorities are common. -->
@@ -456,6 +458,7 @@
         <xsl:with-param name="value" select="$value"/>
         <xsl:with-param name="pid" select="$pid"/>
         <xsl:with-param name="datastream" select="$datastream"/>
+        <xsl:with-param name="node" select="$node"/>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
